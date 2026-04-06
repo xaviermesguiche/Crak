@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>CRAK.</title>
+  <link rel="icon" type="image/svg+xml" href="crak-logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #fff8f0;
+      --clay:      #c96a3a;
+      --clay-dk:   #a3502a;
+      --clay-lt:   #f0d0b8;
+      --teal:      #3ab8a0;
+      --teal-lt:   #d0f0ea;
+      --yellow:    #f5c842;
+      --yellow-lt: #fff5cc;
+      --purple:    #8b5cf6;
+      --purple-lt: #ede9fe;
+      --text:      #2a1a10;
+      --text-mid:  #7a5040;
+      --text-muted:#b09080;
+      --card-bg:   #ffffff;
+      --border:    #e8d8c8;
+      --shadow:    0 4px 0 0 #d0b090;
+      --shadow-sm: 0 3px 0 0 #d0b090;
+      --radius:    20px;
+      --radius-sm: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 15% 15%, #ffeedd 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, #ffe8d0 0%, transparent 40%);
+      color: var(--text);
+      font-family: 'Nunito Sans', sans-serif;
+      min-height: 100vh;
+      display: flex; justify-content: center;
+    }
+    #app {
+      width: 100%; max-width: 430px;
+      padding: 2rem 1.25rem 5rem;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 0.25rem;
+      animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .logo {
+      width: 62px; height: 62px; background: var(--clay);
+      border-radius: 18px; box-shadow: 0 5px 0 0 var(--clay-dk);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; position: relative; overflow: hidden;
+    }
+    .logo::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%;
+      background: rgba(255,255,255,0.15); border-radius: 18px 18px 40% 40%;
+    }
+    .brand-name {
+      font-family: 'Nunito', sans-serif; font-size: 42px; font-weight: 900;
+      color: var(--text); line-height: 1; letter-spacing: -0.02em;
+    }
+    .brand-name em { color: var(--clay); font-style: normal; }
+    .brand-tagline {
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.12em;
+      color: var(--text-muted); text-transform: uppercase; margin-top: 3px;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex; gap: 6px;
+      animation: fadeUp 0.4s 0.08s ease both;
+    }
+    .tab {
+      flex: 1; padding: 0.6rem 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border);
+      background: var(--card-bg);
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+      color: var(--text-muted); cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.18s; text-align: center;
+    }
+    .tab:active { transform: translateY(3px); box-shadow: none; }
+    .tab.active { background: var(--clay); color: #fff; border-color: var(--clay-dk); box-shadow: 0 4px 0 0 var(--clay-dk); }
+
+    /* ── PILLS ── */
+    .pills { display: flex; gap: 8px; flex-wrap: wrap; animation: fadeUp 0.4s 0.1s ease both; }
+    .pill { padding: 5px 14px; border-radius: 99px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; }
+    .pill-clay   { background: var(--clay-lt);   color: var(--clay-dk); }
+    .pill-teal   { background: var(--teal-lt);   color: #1a7a6a; }
+    .pill-yellow { background: var(--yellow-lt); color: #8a6a00; }
+
+    /* ── VOICE ── */
+    .voice-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--card-bg); border: 2px solid var(--border);
+      border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);
+      padding: 0.7rem 1rem; animation: fadeUp 0.4s 0.15s ease both;
+    }
+    .voice-label { font-size: 13px; font-weight: 600; color: var(--text-mid); }
+    .toggle { position: relative; width: 48px; height: 26px; cursor: pointer; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track { position: absolute; inset: 0; border-radius: 99px; background: #e0d0c0; border: 2px solid var(--border); transition: background 0.25s; }
+    .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #b09080; transition: transform 0.25s, background 0.25s; box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
+    .toggle input:checked ~ .toggle-track { background: var(--teal); border-color: var(--teal); }
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(22px); background: #fff; }
+
+    /* ── EXERCISE CARDS ── */
+    .exo-card {
+      background: var(--card-bg); border: 2px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 1rem 1.2rem;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+      animation: fadeUp 0.4s ease both; position: relative; overflow: hidden;
+    }
+    .exo-card:nth-child(1) { animation-delay: 0.18s; }
+    .exo-card:nth-child(2) { animation-delay: 0.25s; }
+    .exo-card:nth-child(3) { animation-delay: 0.32s; }
+    .exo-card::before {
+      content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 4px; border-radius: 99px;
+    }
+    .exo-card:nth-child(1)::before { background: var(--clay); }
+    .exo-card:nth-child(2)::before { background: var(--teal); }
+    .exo-card:nth-child(3)::before { background: var(--yellow); }
+    .exo-card.active { border-color: var(--clay); background: #fff8f4; box-shadow: 0 4px 0 0 var(--clay-dk); }
+    .exo-card.done   { opacity: 0.4; box-shadow: none; }
+    .exo-header { display: flex; align-items: center; gap: 10px; padding-left: 10px; }
+    .exo-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; flex-shrink: 0;
+    }
+    .exo-card:nth-child(1) .exo-num { background: var(--clay-lt); color: var(--clay-dk); }
+    .exo-card:nth-child(2) .exo-num { background: var(--teal-lt); color: #1a7a6a; }
+    .exo-card:nth-child(3) .exo-num { background: var(--yellow-lt); color: #7a6000; }
+    .exo-card.done .exo-num { background: #e8e0d8; color: var(--text-muted); }
+    .exo-title { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; color: var(--text); }
+    .exo-badge { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--text-muted); background: var(--bg); border: 1.5px solid var(--border); border-radius: 99px; padding: 2px 10px; }
+    .exo-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; margin-top: 0.5rem; padding-left: 48px; }
+
+    /* ── TIMER ── */
+    .timer-zone {
+      background: var(--card-bg); border: 2px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 2rem 1.5rem 1.75rem; text-align: center;
+      animation: fadeUp 0.4s 0.38s ease both; position: relative; overflow: hidden;
+    }
+    .timer-zone::after {
+      content: ''; position: absolute; bottom: -30px; right: -30px;
+      width: 100px; height: 100px; border-radius: 50%; background: var(--clay-lt); opacity: 0.4;
+    }
+    .serie-label { font-size: 11px; font-weight: 700; letter-spacing: 0.22em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+    .big-count {
+      font-family: 'Nunito', sans-serif; font-size: 108px; font-weight: 900; line-height: 1;
+      color: var(--clay); position: relative; z-index: 1; text-shadow: 0 6px 0 var(--clay-lt);
+    }
+    .big-count.pulse { animation: repPulse 0.2s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes repPulse { 0%{transform:scale(1)} 60%{transform:scale(1.18)} 100%{transform:scale(1)} }
+    .rep-label { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--text-muted); text-transform: uppercase; margin-top: 0.1rem; }
+    .progress-series { display: flex; gap: 8px; justify-content: center; margin-top: 1.5rem; position: relative; z-index: 1; }
+    .dot { height: 8px; flex: 1; max-width: 52px; border-radius: 99px; background: #ede0d0; transition: background 0.4s, transform 0.3s; }
+    .dot.done-dot   { background: var(--clay-lt); }
+    .dot.active-dot { background: var(--clay); transform: scaleY(1.4); }
+
+    /* ── REST ── */
+    .rest-banner {
+      background: var(--teal-lt); border: 2px solid var(--teal);
+      border-radius: var(--radius-sm); box-shadow: 0 3px 0 0 #1a8070;
+      padding: 1rem; text-align: center; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.2em; color: #1a7a6a; text-transform: uppercase; display: none;
+    }
+    .rest-seconds { font-family: 'Nunito', sans-serif; font-size: 42px; font-weight: 900; display: block; margin-top: 2px; color: var(--teal); }
+
+    /* ── DONE ── */
+    .done-banner {
+      background: var(--yellow-lt); border: 2px solid var(--yellow);
+      border-radius: var(--radius); box-shadow: 0 4px 0 0 #c09800;
+      padding: 2.5rem 1.5rem; text-align: center; display: none;
+      animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .done-icon { font-size: 48px; margin-bottom: 0.75rem; display: block; }
+    .done-big { font-family: 'Nunito', sans-serif; font-size: 26px; font-weight: 900; color: #7a6000; }
+    .done-small { font-size: 13px; font-weight: 600; color: #a08000; margin-top: 0.3rem; }
+
+    /* ── CONTROLS ── */
+    .controls { display: flex; gap: 10px; animation: fadeUp 0.4s 0.42s ease both; }
+    .btn {
+      flex: 1; padding: 1rem; border-radius: var(--radius-sm);
+      border: 2px solid var(--border); background: var(--card-bg);
+      color: var(--text-mid); font-family: 'Nunito', sans-serif;
+      font-size: 15px; font-weight: 800; cursor: pointer;
+      box-shadow: var(--shadow-sm); transition: transform 0.12s, box-shadow 0.12s, background 0.2s;
+    }
+    .btn:hover  { background: var(--bg); }
+    .btn:active { transform: translateY(3px); box-shadow: none; }
+    .btn.primary { background: var(--clay); color: #fff; border-color: var(--clay-dk); box-shadow: 0 4px 0 0 var(--clay-dk); }
+    .btn.primary:hover  { background: #d97040; }
+    .btn.primary:active { transform: translateY(4px); box-shadow: none; }
+    .btn.pause { background: var(--purple-lt); color: var(--purple); border-color: #c4b0f8; box-shadow: 0 3px 0 0 #c4b0f8; }
+    .btn.pause:active { transform: translateY(3px); box-shadow: none; }
+    .btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+
+    /* ── HISTORY TAB ── */
+    #pageHistory { display: none; flex-direction: column; gap: 1rem; }
+
+    .history-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .history-title {
+      font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 900; color: var(--text);
+    }
+    .btn-clear {
+      font-size: 12px; font-weight: 700; color: var(--text-muted);
+      background: none; border: 1.5px solid var(--border); border-radius: 99px;
+      padding: 4px 12px; cursor: pointer; transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-clear:hover { color: var(--clay); border-color: var(--clay); }
+
+    /* streak bar */
+    .streak-card {
+      background: var(--card-bg); border: 2px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .streak-num {
+      font-family: 'Nunito', sans-serif; font-size: 48px; font-weight: 900;
+      color: var(--clay); line-height: 1; text-shadow: 0 4px 0 var(--clay-lt);
+    }
+    .streak-info { display: flex; flex-direction: column; }
+    .streak-label { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; color: var(--text); }
+    .streak-sub   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* calendar grid */
+    .cal-card {
+      background: var(--card-bg); border: 2px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 1.25rem;
+    }
+    .cal-month {
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+      color: var(--text-mid); letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
+    }
+    .cal-day-label {
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
+      text-align: center; text-transform: uppercase; padding-bottom: 4px;
+    }
+    .cal-cell {
+      aspect-ratio: 1; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; background: transparent;
+    }
+    .cal-cell.done-day    { background: var(--yellow-lt); }
+    .cal-cell.missed-day  { background: #fdeaea; }
+    .cal-cell.today       { outline: 2px solid var(--clay); outline-offset: 1px; border-radius: 8px; }
+    .cal-cell.empty       { opacity: 0; pointer-events: none; }
+
+    /* list */
+    .history-list { display: flex; flex-direction: column; gap: 8px; }
+    .history-item {
+      background: var(--card-bg); border: 2px solid var(--border);
+      border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);
+      padding: 0.8rem 1rem;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .history-emoji { font-size: 22px; flex-shrink: 0; }
+    .history-date  { font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); }
+    .history-label { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .history-empty {
+      text-align: center; padding: 2.5rem 1rem;
+      font-size: 14px; color: var(--text-muted); font-weight: 600;
+    }
+
+    footer { font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.12em; text-align: center; opacity: 0.6; padding-top: 0.25rem; text-transform: uppercase; }
+
+    @keyframes popIn  { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <path d="M8 28 Q8 8 22 6" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <line x1="11" y1="24" x2="27" y2="10" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="11" cy="24" r="5" fill="white" opacity="0.95"/>
+        <circle cx="11" cy="24" r="2.5" fill="#c96a3a"/>
+        <circle cx="27" cy="10" r="3" fill="white" opacity="0.7"/>
+        <path d="M23 6 Q28 5 30 10" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M20 3 Q27 2 30 7" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="brand">
+      <div class="brand-name">CRAK<em>.</em></div>
+      <div class="brand-tagline">Capsulite · Rétractile · Adaptative · Kiné</div>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" id="tabProgram" onclick="switchTab('program')">Programme</div>
+    <div class="tab"        id="tabHistory" onclick="switchTab('history')">Historique</div>
+  </div>
+
+  <!-- ══ PAGE PROGRAMME ══ -->
+  <div id="pageProgram">
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+
+      <div class="pills">
+        <span class="pill pill-clay">3 exercices</span>
+        <span class="pill pill-teal">3 séries</span>
+        <span class="pill pill-yellow">10 reps</span>
+      </div>
+
+      <div class="voice-row">
+        <span class="voice-label">🔊 Guidage vocal</span>
+        <label class="toggle">
+          <input type="checkbox" id="voiceToggle" checked />
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+
+      <div id="exoList">
+        <div class="exo-card active" id="card0">
+          <div class="exo-header">
+            <div class="exo-num" id="num0">1</div>
+            <div class="exo-title">Étirement allongé</div>
+            <span class="exo-badge">3 × 10</span>
+          </div>
+          <div class="exo-desc">Allongé sur le dos, mains jointes, bras tendus vers le haut. Étire doucement la colonne vertébrale.</div>
+        </div>
+        <div class="exo-card" id="card1">
+          <div class="exo-header">
+            <div class="exo-num" id="num1">2</div>
+            <div class="exo-title">Cercles avec poids</div>
+            <span class="exo-badge">3 × 10</span>
+          </div>
+          <div class="exo-desc">Debout, poids léger en main, bras relâché vers le bas. Cercles concentriques droite→gauche, puis gauche→droite.</div>
+        </div>
+        <div class="exo-card" id="card2">
+          <div class="exo-header">
+            <div class="exo-num" id="num2">3</div>
+            <div class="exo-title">Balancier avec balai</div>
+            <span class="exo-badge">3 × 10</span>
+          </div>
+          <div class="exo-desc">Debout, balai tenu à deux mains. Mouvement de balancier en étirant vers la gauche, fluide et contrôlé.</div>
+        </div>
+      </div>
+
+      <div class="timer-zone" id="timerZone">
+        <div class="serie-label" id="serieLabel">Série 1 / 3</div>
+        <div class="big-count" id="bigCount">10</div>
+        <div class="rep-label">répétitions</div>
+        <div class="progress-series">
+          <div class="dot active-dot" id="s0"></div>
+          <div class="dot" id="s1"></div>
+          <div class="dot" id="s2"></div>
+        </div>
+      </div>
+
+      <div class="rest-banner" id="restBanner">
+        Repos
+        <span class="rest-seconds" id="restCount">15</span>
+      </div>
+
+      <div class="done-banner" id="doneBanner">
+        <span class="done-icon">🎉</span>
+        <div class="done-big">Programme terminé !</div>
+        <div class="done-small">Excellent travail. À demain.</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn primary" id="btnStart" onclick="startExo()">Démarrer</button>
+        <button class="btn pause"   id="btnPause" onclick="togglePause()" style="display:none;">Pause</button>
+        <button class="btn"         id="btnReset" onclick="resetAll()">Réinitialiser</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ PAGE HISTORIQUE ══ -->
+  <div id="pageHistory">
+
+    <div class="history-header">
+      <div class="history-title">Mes séances</div>
+      <button class="btn-clear" onclick="clearHistory()">Effacer</button>
+    </div>
+
+    <!-- streak -->
+    <div class="streak-card">
+      <div class="streak-num" id="streakNum">0</div>
+      <div class="streak-info">
+        <div class="streak-label">jours de suite 🔥</div>
+        <div class="streak-sub" id="streakSub">Commence aujourd'hui !</div>
+      </div>
+    </div>
+
+    <!-- calendar -->
+    <div class="cal-card">
+      <div class="cal-month" id="calMonth"></div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+
+    <!-- list -->
+    <div class="history-list" id="historyList"></div>
+
+  </div>
+
+  <footer>CRAK. — Rééducation quotidienne</footer>
+</div>
+
+<script>
+/* ════ STORAGE ════ */
+const STORE_KEY = 'crak_history_v1';
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; }
+  catch { return []; }
+}
+function saveHistory(h) { localStorage.setItem(STORE_KEY, JSON.stringify(h)); }
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+function recordSession(completed) {
+  const h = loadHistory();
+  const today = todayStr();
+  const idx = h.findIndex(e => e.date === today);
+  if (idx >= 0) h[idx].completed = completed;
+  else h.unshift({ date: today, completed });
+  h.sort((a,b) => b.date.localeCompare(a.date));
+  saveHistory(h);
+}
+
+/* ════ TABS ════ */
+function switchTab(tab) {
+  document.getElementById('pageProgram').style.display = tab === 'program' ? 'block' : 'none';
+  document.getElementById('pageHistory').style.display = tab === 'history' ? 'flex' : 'none';
+  document.getElementById('tabProgram').className = 'tab' + (tab==='program' ? ' active' : '');
+  document.getElementById('tabHistory').className = 'tab' + (tab==='history' ? ' active' : '');
+  if (tab === 'history') renderHistory();
+}
+
+/* ════ HISTORY RENDER ════ */
+function renderHistory() {
+  const h = loadHistory();
+  renderStreak(h);
+  renderCalendar(h);
+  renderList(h);
+}
+
+function renderStreak(h) {
+  let streak = 0;
+  const today = todayStr();
+  let cursor = new Date();
+  // check today first
+  const todayEntry = h.find(e => e.date === today);
+  if (todayEntry && todayEntry.completed) {
+    streak = 1;
+    cursor.setDate(cursor.getDate() - 1);
+    while (true) {
+      const d = cursor.toISOString().slice(0,10);
+      const e = h.find(x => x.date === d);
+      if (e && e.completed) { streak++; cursor.setDate(cursor.getDate()-1); }
+      else break;
+    }
+  } else {
+    // check yesterday chain
+    cursor.setDate(cursor.getDate() - 1);
+    while (true) {
+      const d = cursor.toISOString().slice(0,10);
+      const e = h.find(x => x.date === d);
+      if (e && e.completed) { streak++; cursor.setDate(cursor.getDate()-1); }
+      else break;
+    }
+  }
+  document.getElementById('streakNum').textContent = streak;
+  const sub = streak === 0 ? "Commence aujourd'hui !"
+            : streak === 1 ? "Bravo, continue demain !"
+            : `${streak} jours consécutifs, impressionnant !`;
+  document.getElementById('streakSub').textContent = sub;
+}
+
+function renderCalendar(h) {
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('calMonth').textContent = `${monthNames[month]} ${year}`;
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const days = ['Lu','Ma','Me','Je','Ve','Sa','Di'];
+  days.forEach(d => { const el=document.createElement('div'); el.className='cal-day-label'; el.textContent=d; grid.appendChild(el); });
+
+  const firstDay = new Date(year, month, 1);
+  let startDow = firstDay.getDay(); // 0=Sun
+  startDow = startDow === 0 ? 6 : startDow - 1; // Monday=0
+  for (let i=0; i<startDow; i++) {
+    const el=document.createElement('div'); el.className='cal-cell empty'; grid.appendChild(el);
+  }
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const todayFull = todayStr();
+  for (let d=1; d<=daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const entry = h.find(e => e.date === dateStr);
+    const el = document.createElement('div');
+    el.className = 'cal-cell';
+    if (dateStr === todayFull) el.classList.add('today');
+    if (entry) {
+      el.textContent = entry.completed ? '⭐' : '❌';
+      el.classList.add(entry.completed ? 'done-day' : 'missed-day');
+    }
+    grid.appendChild(el);
+  }
+}
+
+function renderList(h) {
+  const list = document.getElementById('historyList');
+  if (h.length === 0) {
+    list.innerHTML = '<div class="history-empty">Aucune séance enregistrée.<br>Lance ton premier programme !</div>';
+    return;
+  }
+  const dayNames = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const monthNames = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+  list.innerHTML = h.slice(0, 30).map(e => {
+    const dt = new Date(e.date + 'T12:00:00');
+    const label = `${dayNames[dt.getDay()]} ${dt.getDate()} ${monthNames[dt.getMonth()]} ${dt.getFullYear()}`;
+    const emoji = e.completed ? '⭐' : '❌';
+    const txt   = e.completed ? 'Séance complète' : 'Séance interrompue';
+    return `<div class="history-item">
+      <div class="history-emoji">${emoji}</div>
+      <div><div class="history-date">${label}</div><div class="history-label">${txt}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function clearHistory() {
+  if (!confirm('Effacer tout l\'historique ?')) return;
+  localStorage.removeItem(STORE_KEY);
+  renderHistory();
+}
+
+/* ════ WORKOUT ENGINE ════ */
+const EXERCISES = [
+  { name: "Étirement allongé vers le haut", series: 3, reps: 10 },
+  { name: "Cercles concentriques avec poids", series: 3, reps: 10 },
+  { name: "Balancier avec balai", series: 3, reps: 10 },
+];
+let currentExo=0, currentSerie=0, currentRep=0;
+let running=false, paused=false, repInterval=null;
+let restTimer=null, restCallback=null, restRemaining=0;
+const voices={fr:null};
+function loadVoice(){const all=speechSynthesis.getVoices();voices.fr=all.find(v=>v.lang.startsWith('fr'))||all[0]||null;}
+speechSynthesis.onvoiceschanged=loadVoice; loadVoice();
+function speak(t){if(!document.getElementById('voiceToggle').checked)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';if(voices.fr)u.voice=voices.fr;u.rate=0.95;speechSynthesis.speak(u);}
+function updateUI(){
+  document.getElementById('bigCount').textContent=currentRep;
+  document.getElementById('serieLabel').textContent=`Série ${currentSerie+1} / ${EXERCISES[currentExo].series}`;
+  for(let i=0;i<3;i++){const d=document.getElementById('s'+i);d.className='dot';if(i<currentSerie)d.classList.add('done-dot');else if(i===currentSerie)d.classList.add('active-dot');}
+  for(let i=0;i<3;i++){const c=document.getElementById('card'+i),n=document.getElementById('num'+i);c.className='exo-card';n.textContent=i+1;if(i<currentExo){c.classList.add('done');n.textContent='✓';}else if(i===currentExo)c.classList.add('active');}
+}
+function pulse(){const el=document.getElementById('bigCount');el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');}
+function startExo(){
+  if(running)return; running=true; paused=false;
+  document.getElementById('btnStart').style.display='none';
+  document.getElementById('btnPause').style.display='';
+  currentRep=EXERCISES[currentExo].reps; updateUI();
+  speak(`Exercice ${currentExo+1} : ${EXERCISES[currentExo].name}. Série ${currentSerie+1}. On commence !`);
+  setTimeout(()=>{if(!paused)repInterval=setInterval(countRep,1500);},2200);
+}
+function togglePause(){
+  const btn=document.getElementById('btnPause');
+  if(!paused){
+    paused=true; clearInterval(repInterval); repInterval=null;
+    if(restTimer){clearInterval(restTimer);restTimer=null;}
+    speechSynthesis.cancel(); btn.textContent='Reprendre';
+    recordSession(false); // mark interrupted
+  } else {
+    paused=false; btn.textContent='Pause'; speak('On reprend !');
+    if(restCallback){const cb=restCallback;showRest(restRemaining,cb);}
+    else setTimeout(()=>{repInterval=setInterval(countRep,1500);},800);
+  }
+}
+function countRep(){
+  if(paused)return;
+  if(currentRep<=0){clearInterval(repInterval);repInterval=null;endSerie();return;}
+  speak(String(currentRep)); pulse(); currentRep--; updateUI();
+}
+function endSerie(){
+  speak(`Série ${currentSerie+1} terminée. Bien joué !`); currentSerie++;
+  if(currentSerie>=EXERCISES[currentExo].series){endExo();return;}
+  showRest(15,()=>{restCallback=null;currentRep=EXERCISES[currentExo].reps;updateUI();speak(`Série ${currentSerie+1}, c'est parti !`);setTimeout(()=>{if(!paused)repInterval=setInterval(countRep,1500);},1500);});
+}
+function endExo(){
+  currentExo++; currentSerie=0;
+  if(currentExo>=EXERCISES.length){finishAll();return;}
+  speak("Exercice terminé ! Repos avant l'exercice suivant.");
+  showRest(20,()=>{restCallback=null;updateUI();speak(`Exercice ${currentExo+1} : ${EXERCISES[currentExo].name}. Série 1. C'est parti !`);currentRep=EXERCISES[currentExo].reps;updateUI();setTimeout(()=>{if(!paused)repInterval=setInterval(countRep,1500);},1800);});
+}
+function showRest(seconds,cb){
+  const banner=document.getElementById('restBanner'),countEl=document.getElementById('restCount');
+  let s=seconds; restRemaining=s; restCallback=cb;
+  banner.style.display='block'; countEl.textContent=s;
+  restTimer=setInterval(()=>{if(paused)return;s--;restRemaining=s;countEl.textContent=s;if(s<=3&&s>0)speak(String(s));if(s<=0){clearInterval(restTimer);restTimer=null;banner.style.display='none';cb();}},1000);
+}
+function finishAll(){
+  running=false;
+  recordSession(true);
+  document.getElementById('timerZone').style.display='none';
+  document.getElementById('doneBanner').style.display='block';
+  document.getElementById('btnPause').style.display='none';
+  document.getElementById('btnStart').style.display='none';
+  speak('Bravo ! Programme terminé. À demain !');
+  for(let i=0;i<3;i++){document.getElementById('card'+i).className='exo-card done';document.getElementById('num'+i).textContent='✓';}
+}
+function resetAll(){
+  clearInterval(repInterval);clearInterval(restTimer);
+  repInterval=null;restTimer=null;restCallback=null;
+  speechSynthesis.cancel();
+  currentExo=0;currentSerie=0;currentRep=0;running=false;paused=false;
+  document.getElementById('timerZone').style.display='block';
+  document.getElementById('doneBanner').style.display='none';
+  document.getElementById('restBanner').style.display='none';
+  const bp=document.getElementById('btnPause');bp.style.display='none';bp.textContent='Pause';
+  document.getElementById('btnStart').style.display='';
+  document.getElementById('btnStart').disabled=false;
+  document.getElementById('bigCount').textContent='10';
+  document.getElementById('serieLabel').textContent='Série 1 / 3';
+  for(let i=0;i<3;i++){
+    const c=document.getElementById('card'+i),n=document.getElementById('num'+i);
+    c.className='exo-card';n.textContent=i+1;
+    if(i===0)c.classList.add('active');
+    document.getElementById('s'+i).className='dot'+(i===0?' active-dot':'');
+  }
+}
+</script>
+</body>
+</html>
